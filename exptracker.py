@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import (QVBoxLayout,
                              QListWidget,
                              QApplication,
                              QHBoxLayout,
-                             QComboBox)
+                             QComboBox, QMessageBox)
 from baseWindow import BaseWindow
 import matplotlib.pyplot as plt
 from mplcanvas import MatplotlibCanvas
@@ -24,7 +24,9 @@ class ExpenseTracker(BaseWindow):
     def init_header_layout(self):
         header_layout = QHBoxLayout()
         self.money_input = QLineEdit(self)
+        self.money_input.setPlaceholderText("Сума витрат")
         self.expense_name_input = QLineEdit(self)
+        self.expense_name_input.setPlaceholderText("Опис витрат")
         self.category_combobox = QComboBox(self)
         self.category_combobox.addItems(self.categories)
         self.add_button = QPushButton("Add", self)
@@ -47,26 +49,59 @@ class ExpenseTracker(BaseWindow):
     def add_expense(self) -> None:
         category_name = self.category_combobox.currentText()
         description = self.expense_name_input.text()
+
+        if not description:
+            self.show_error("Опис не може бути порожнім!")
+            return
+
         if len(description) > 14:
             description = description[:14] + "..."
+
         try:
             value = float(self.money_input.text())
+            if value <= 0:
+                self.show_error("Сума не може бути від'ємною!")
+                return
         except ValueError:
-            # TODO: додати модальне вікно
+            self.show_error("Сума може бути лише числом!")
             return
+
         self.DATA.append({
-         category_name : value,
+            "amount" : value,
+            "description" : description,
+            "category" : category_name,
         })
-        self.graph.update_data(self.DATA)
+
+        self.update_expense()
+        self.update_chart()
+        self.clear_input()
+
 
     def update_expense(self) -> None:
         self.list_widget.clear()
         for expense in self.DATA:
-            self.list_widget.addItem(expense)
+            text = f"{expense['description']} - {expense['amount']} | {expense['category']}"
+            self.list_widget.addItem(text)
+
+    def update_chart(self) -> None:
+        category_totals = {}
+
+        for expense in self.DATA:
+            category_name = expense["category"]
+            amount = expense["amount"]
+
+            if category_name not in category_totals:
+                category_totals[category_name] = amount
+            else:
+                category_totals[category_name] += amount
+        self.graph.update_data(category_totals)
 
     def clear_input(self):
         self.money_input.clear()
         self.expense_name_input.clear()
+
+    def show_error(self, message):
+        QMessageBox.warning(self, "Помилка введення", message)
 
 def main():
     app = QApplication(sys.argv)

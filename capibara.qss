@@ -1,0 +1,36 @@
+QWidget {
+    background-color: #f4e1c1;
+}
+
+QLabel {
+    color: #3b2a1a;
+}
+
+QPushButton {
+    background-color: #d9a066;
+    border: 2px solid #8b5a2b;
+    border-radius: 12px;
+    padding: 8px;
+    font-weight: bold;
+}
+
+QPushButton:hover {
+    background-color: #e6b37a;
+}
+
+QPushButton:pressed {
+    background-color: #c98b4d;
+}
+
+QPushButton[text^="Прокачати"] {
+    background-color: #8fd694;
+    border: 2px solid #3d7a3f;
+}
+
+QPushButton[text^="Прокачати"]:hover {
+    background-color: #a6e3aa;
+}
+
+QPushButton[text^="Прокачати"]:pressed {
+    background-color: #6fcf7a;
+}
